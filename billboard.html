@@ -1,0 +1,58 @@
+<!-- ////////////////////////////////////////////////////
+//
+// Gravity Wave 0.1 alpha
+//
+// http://www.gravity-wave.org  //  ©2016 Earth
+//
+///////////////////////////////////////////////////// -->
+
+<html>
+<head>
+<script type='text/javascript'>
+
+// Implement header tags
+
+var googletag = googletag || {};
+googletag.cmd = googletag.cmd || [];
+(function() {
+	var gads = document.createElement('script');
+	gads.async = true;
+	gads.type = 'text/javascript';
+	var useSSL = 'https:' == document.location.protocol;
+	gads.src = (useSSL ? 'https:' : 'http:') +
+	'//www.googletagservices.com/tag/js/gpt.js';
+	var node = document.getElementsByTagName('script')[0];
+	node.parentNode.insertBefore(gads, node);
+})();
+(function() {
+	var headertag = document.createElement('script');
+	headertag.async = true;
+	headertag.type = 'text/javascript';
+	var useSSL = 'https:' == document.location.protocol;
+	headertag.src = 'gravity-wave.js';
+	var node = document.getElementsByTagName('script')[0];
+	node.parentNode.insertBefore(headertag, node);
+})();
+
+</script>
+
+<script type='text/javascript'>
+googletag.cmd.push(function() {
+	googletag.defineSlot('/62650033/headertag', [970, 250], 'billboard').addService(googletag.pubads());
+	googletag.pubads().enableSingleRequest();
+	googletag.enableServices();
+});
+</script>
+</head>
+
+
+<body>
+
+<!-- /62650033/headertag -->
+<div id='billboard' style='height:250px; width:970px;'>
+</div>
+
+</body>
+
+</head>
+</html>
