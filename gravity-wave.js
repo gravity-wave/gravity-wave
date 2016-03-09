@@ -1,10 +1,33 @@
 /////////////////////////////////////////////////////////
 //
 // Gravity Wave 0.1 alpha
+// The MIT License (MIT)
+// http://www.gravity-wave.org  //  (C) 2016 Earth
 //
-// http://www.gravity-wave.org  //  ©2016 Earth
-//
-/////////////////////////////////////////////////////////
+// Permission is hereby granted, free of charge, to any
+// person obtaining a copy of this software and
+// associated documentation files (the "Software"), to
+// deal in the Software without restriction, including
+// without limitation the rights to use, copy, modify,
+// merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom
+// the Software is furnished to do so, subject to the
+// following conditions:
+// 
+// The above copyright notice and this permission notice
+// shall be included in all copies or substantial
+// portions of the Software.
+// 
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF
+// ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+// FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO
+// EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE
+// FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN
+// AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+// USE OR OTHER DEALINGS IN THE SOFTWARE.
+// 
 
 //
 //   Configure Timeouts & Globals
@@ -14,7 +37,8 @@ var gravity_wave_alarms = [ ];
 var gravity_wave_divs = [ 'billboard' ];
 var gravity_wave_global_timeout = 300;
 var gravity_wave_bidder_timeout = [ ];
-gravity_wave_bidder_timeout[ 'example' ] = 250;
+gravity_wave_bidder_timeout[ 'example_jsonp' ] = 250;
+gravity_wave_bidder_timeout[ 'example_ajax' ]  = 250;
 var gravity_wave_bidder_list = [ ];
 var gravity_wave_bidder_status = [ ];
 
@@ -24,7 +48,7 @@ function gravity_wave_start( callback )
 
 	// Configure Bidder List
 	gravity_wave_ready_state = 1;
-	gravity_wave_bidder_list = [ "example" ];
+	gravity_wave_bidder_list = [ "example_jsonp", "example_ajax" ];
 
 
 	for ( var i=0; i < gravity_wave_bidder_list.length; i++ )
@@ -42,20 +66,38 @@ function gravity_wave_start( callback )
 		gravity_wave_end( callback );
 	}, gravity_wave_global_timeout );
 
-	// Initialize Example Header Tag
-	if ( gravity_wave_enabled( "example" ) )
+	// Initialize Example JSONP Header Tag
+	if ( gravity_wave_enabled( "example_jsonp" ) )
 	{
-		gravity_wave_example_start( );
-		console.log ( "[GW]"+gravity_wave_date()+" Start Example" );
+		gravity_wave_example_jsonp_start( );
 		var gravity_wave_example_timeout = setTimeout( function( )
 		{
-			gravity_wave_bidder_status["example"] = 0;
+			gravity_wave_bidder_status["example_jsonp"] = 0;
 			gravity_wave_end( callback );
-		}, gravity_wave_bidder_timeout[ "example" ] );
+		}, gravity_wave_bidder_timeout[ "example_jsonp" ] );
 
-		window.gravity_wave_example_end = function( )
+		window.gravity_wave_example_jsonp_end = function( )
 		{
-			gravity_wave_bidder_status["example"] = 0;
+			gravity_wave_bidder_status["example_jsonp"] = 0;
+			console.log ( "[GW]"+gravity_wave_date()+" End Example" );
+			clearTimeout( gravity_wave_example_timeout );
+			gravity_wave_end( callback );
+		}
+	}
+
+	// Initialize Example AJAX Header Tag
+	if ( gravity_wave_enabled( "example_ajax" ) )
+	{
+		gravity_wave_example_ajax_start( );
+		var gravity_wave_example_timeout = setTimeout( function( )
+		{
+			gravity_wave_bidder_status["example_ajax"] = 0;
+			gravity_wave_end( callback );
+		}, gravity_wave_bidder_timeout[ "example_ajax" ] );
+
+		window.gravity_wave_example_ajax_end = function( )
+		{
+			gravity_wave_bidder_status["example_ajax"] = 0;
 			console.log ( "[GW]"+gravity_wave_date()+" End Example" );
 			clearTimeout( gravity_wave_example_timeout );
 			gravity_wave_end( callback );
@@ -140,25 +182,48 @@ function gravity_wave_date( )
 // External Libraries
 //
 
-function gravity_wave_example_onload ( ) {
-	window.googletag = window.googletag || {};
-	googletag.cmd = googletag.cmd || [];
-	googletag.cmd.push(function ( ) {
-		googletag.pubads().setTargeting( "GravityWave", "Global" );
-		console.log( "[GW]"+gravity_wave_date()+" Example Global Target" );
-	});
-	gravity_wave_example_end( );
-}
 
-function gravity_wave_example_start( network_id )
+function gravity_wave_example_jsonp_start( network_id )
 {
+	console.log ( "[GW]"+gravity_wave_date()+" Start Example" );
 	var example_tag = document.createElement("script");
 	example_tag.type = "text/javascript";
 	example_tag.src = 'http://ajax.googleapis.com/ajax/libs/angularjs/1.5.0/angular.min.js';
-	example_tag.onload = gravity_wave_example_onload;
+	example_tag.onload = function( )
+	{
+		window.googletag = window.googletag || {};
+		googletag.cmd = googletag.cmd || [];
+		googletag.cmd.push(function ( ) {
+			googletag.pubads().setTargeting( "GravityWave", "Global" );
+			console.log( "[GW]"+gravity_wave_date()+" Example Global Target" );
+		});
+		gravity_wave_example_jsonp_end( );
+	}
 	var node = document.getElementsByTagName("script")[0];
 	node.parentNode.insertBefore(example_tag, node);
 }
+
+function gravity_wave_example_ajax_start( timeout )
+{
+	var example_req = new XMLHttpRequest( );
+	example_req.timeout = timeout;
+	example_req.onreadystatechange = function( )
+	{
+		if ( example_req.readyState == 4 && example_req.status == 200 )
+		{
+			var res = example_req.responseText;
+			console.log( "[GW]"+gravity_wave_date()+" Example AJAX Ack" );
+			gravity_wave_example_ajax_end( );
+		}
+	};
+	example_req.onreadystatechange = function( )
+	{
+		console.log( "[GW]"+gravity_wave_date()+" Example AJAX Timeout" );
+	};
+	example_req.open( "GET", "http://ajax.googleapis.com/ajax/libs/angularjs/1.5.0/angular.min.js", true );
+	example_req.send();
+}
+
 
 //
 // Start
